@@ -1,0 +1,5 @@
+__pycache__/
+tests/
+*.wav
+video_only.mp4
+rf.log

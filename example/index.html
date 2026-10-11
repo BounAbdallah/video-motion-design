@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<!-- Exemple minimal : 3 scènes, sous-titres, 10 s. render(t) est déterministe : tout dépend de t. -->
+<style>
+@font-face{font-family:'SG';src:url(assets/space-grotesk-latin-700-normal.woff2);font-weight:700}
+@font-face{font-family:'DM';src:url(assets/dm-sans-latin-400-normal.woff2);font-weight:400}
+@font-face{font-family:'DM';src:url(assets/dm-sans-latin-700-normal.woff2);font-weight:700}
+:root{--bg:#16142B;--panel:#241F52;--accent:#FF6A3D;--accent2:#8B7CF6;--cream:#F5F3EE;--muted:#C9C6DA}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg);font-family:'DM',sans-serif;color:var(--cream)}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:radial-gradient(1400px 900px at 50% 50%,#2A2460 0%,var(--bg) 65%)}
+.abs{position:absolute}
+.scene{position:absolute;inset:0;opacity:0}
+.sg{font-family:'SG',sans-serif;font-weight:700;letter-spacing:-1.5px}
+.card{background:var(--panel);border:1px solid rgba(255,255,255,.1);border-radius:28px;box-shadow:0 40px 90px rgba(0,0,0,.35)}
+.chip{display:inline-block;padding:14px 28px;border-radius:40px;background:var(--cream);color:var(--bg);font-weight:700;font-size:32px}
+#cap{position:absolute;left:0;right:0;top:972px;text-align:center}
+#capt{display:inline-block;max-width:1560px;padding:10px 26px;border-radius:14px;background:rgba(10,8,30,.8);font-size:32px;line-height:1.3}
+#blob{left:1300px;top:-200px;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,var(--accent2) 0%,transparent 70%);opacity:.3}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="abs" id="blob"></div>
+
+  <div class="scene" id="s1">
+    <div class="abs" style="left:0;right:0;top:330px;text-align:center">
+      <div id="eb" style="font-size:28px;font-weight:700;letter-spacing:5px;color:var(--accent);opacity:0">VOTRE MARQUE</div>
+      <div id="title" class="sg" style="font-size:150px;margin-top:20px;opacity:0">Une idée, <span style="color:var(--accent)">en vidéo</span></div>
+    </div>
+  </div>
+
+  <div class="scene" id="s2">
+    <div class="abs sg" style="left:0;right:0;top:170px;text-align:center;font-size:80px">Trois étapes <span style="color:var(--accent)">simples</span></div>
+    <div class="abs" id="cards" style="left:240px;top:380px;width:1440px;display:flex;gap:40px"></div>
+  </div>
+
+  <div class="scene" id="s3">
+    <div class="abs" style="left:0;right:0;top:300px;text-align:center">
+      <div class="sg" id="cta_t" style="font-size:120px;opacity:0">À vous de jouer</div>
+      <div id="cta_b" style="margin-top:60px;opacity:0"><span class="chip" style="background:var(--accent);font-size:44px;padding:24px 56px">Commencer maintenant →</span></div>
+    </div>
+  </div>
+
+  <div id="cap"><span id="capt" style="opacity:0"></span></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)), prog=(t,a,b)=>clamp((t-a)/(b-a)), lerp=(a,b,x)=>a+(b-a)*x;
+const eo=x=>1-Math.pow(1-x,3), eo5=x=>1-Math.pow(1-x,5), eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const back=x=>{const c1=1.6,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)};
+/* scène visible entre a et b, avec fondu + zoom + flou en entrée/sortie */
+function scene(id,t,a,b,fi=.3,fo=.35){const el=$(id);const on=t>=a&&t<b;el.style.visibility=on?'visible':'hidden';if(!on)return false;
+  const i=eo5(prog(t,a,a+fi+.2)),o=eio(prog(t,b-fo,b));el.style.opacity=eo(prog(t,a,a+fi))*(1-o);
+  el.style.transform=`scale(${lerp(.92,1,i)*lerp(1,1.1,o)})`;el.style.filter=(i<1||o>0)?`blur(${(1-i)*8+o*10}px)`:'none';return true}
+function pin(el,t,a,dur=.45,from=.5){const p=back(prog(t,a,a+dur));el.style.opacity=clamp(prog(t,a,a+.15));el.style.transform=`scale(${lerp(from,1,p)})`}
+function rise(el,t,a,dur=.5,dy=30){const p=eo5(prog(t,a,a+dur));el.style.opacity=p;el.style.transform=`translateY(${(1-p)*dy}px)`}
+
+/* sous-titres en temps vidéo : [début, fin, texte] */
+const CAP=[[0.4,3.0,"Vous avez une idée ?"],[3.3,6.8,"Un script, une voix, une animation."],[7.2,9.6,"À vous de jouer."]];
+function caption(t){const c=CAP.find(c=>t>=c[0]&&t<c[1]);const e=$('capt');if(!c){e.style.opacity=0;return}
+  e.textContent=c[2];e.style.opacity=clamp(prog(t,c[0],c[0]+.12))*(1-clamp(prog(t,c[1]-.1,c[1])))}
+
+const ST=[['01','Le script','Écrit avec l\'IA',3.9],['02','La voix','Générée par ElevenLabs',4.7],['03','L\'animation','Codée par Claude',5.5]];
+$('cards').innerHTML=ST.map((s,i)=>`<div class="card st" style="flex:1;height:340px;padding:44px;opacity:0"><div class="sg" style="font-size:80px;color:${i%2?'var(--accent2)':'var(--accent)'}">${s[0]}</div><div style="font-size:44px;font-weight:700;margin-top:16px">${s[1]}</div><div style="font-size:30px;color:var(--muted);margin-top:10px">${s[2]}</div></div>`).join('');
+
+function render(t){
+  $('blob').style.transform=`translate(${Math.sin(t*.3)*80}px,${Math.cos(t*.25)*60}px)`;
+  if(scene('s1',t,0,3.2)){rise($('eb'),t,.3,.5,20);const p=eo5(prog(t,.6,1.2));$('title').style.opacity=p;
+    $('title').style.transform=`scale(${lerp(1.4,1,p)})`;$('title').style.filter=p<1?`blur(${(1-p)*10}px)`:'none'}
+  if(scene('s2',t,3.2,7.0)){document.querySelectorAll('.st').forEach((e,i)=>{const s=ST[i][3];const p=back(prog(t,s,s+.5));
+    e.style.opacity=clamp(prog(t,s,s+.15));e.style.transform=`translateY(${(1-p)*80}px) scale(${lerp(.7,1,p)})`})}
+  if(scene('s3',t,7.0,99)){rise($('cta_t'),t,7.2,.6,40);pin($('cta_b'),t,8.0,.5,.6)}
+  $('stage').style.opacity=1-eio(prog(t,9.4,10));
+  caption(t);
+}
+window.render=render;render(0);
+</script>
+</body>
+</html>
