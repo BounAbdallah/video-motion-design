@@ -59,7 +59,7 @@ python3 ../scripts/rf.py index.html --dur 10                           # rendu
 La page HTML expose une fonction `render(t)` qui dessine l'image exacte à l'instant `t`. Playwright appelle `render(0)`, `render(1/60)`, `render(2/60)`… et capture chaque image. ffmpeg assemble le tout. Le rendu est donc **déterministe** : même code, même vidéo, à l'image près.
 
 ## Auteur
-**Bouna Bin Abdallah Dramé**, fondateur et CTO de NWS, développeur full-stack (Dakar, Sénégal).
+**Bouna Bin Abdallah Dramé**, fondateur et CTO de NWS, développeur full-stack (Dakar, Sénégal) **+221 78 186 02 90 bounabinabdallahdrame@gmail.com @BounAbdallah**.
 Cette méthode est enseignée dans la formation **Motion Design avec l'IA** (Claude, ChatGPT, Gemini, ElevenLabs).
 
 Licence MIT. Polices incluses dans `example/assets` : Space Grotesk et DM Sans (SIL Open Font License).
