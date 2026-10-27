@@ -60,6 +60,5 @@ La page HTML expose une fonction `render(t)` qui dessine l'image exacte à l'ins
 
 ## Auteur
 **Bouna Bin Abdallah Dramé**, fondateur et CTO de NWS, développeur full-stack (Dakar, Sénégal) **+221 78 186 02 90 bounabinabdallahdrame@gmail.com @BounAbdallah**.
-Cette méthode est enseignée dans la formation **Motion Design avec l'IA** (Claude, ChatGPT, Gemini, ElevenLabs).
 
 Licence MIT. Polices incluses dans `example/assets` : Space Grotesk et DM Sans (SIL Open Font License).
